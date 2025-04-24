@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lama 3D</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    camera.position.z = 6; // au lieu de 5
+
+    // Lumières
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 3, 5);
+    scene.add(light);
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+    scene.add(ambient);
+
+    // Chargement de l’image
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(
+      'https://i.postimg.cc/bw9cBJqB/opera-6u8-B85-Q5d-O.jpg',
+      (texture) => {
+        console.log("✅ Texture chargée");
+
+        const geometry = new THREE.SphereGeometry(2, 64, 64);
+        const material = new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 0.5,
+          metalness: 0.1
+        });
+        const ball = new THREE.Mesh(geometry, material);
+        scene.add(ball);
+
+        function animate() {
+          requestAnimationFrame(animate);
+          ball.rotation.y += 0.002;
+          renderer.render(scene, camera);
+        }
+        animate();
+      },
+      undefined,
+      (err) => {
+        console.error("❌ Erreur de chargement :", err);
+      }
+    );
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
